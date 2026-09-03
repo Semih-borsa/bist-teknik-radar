@@ -1,0 +1,41 @@
+name: BIST teknik gözlem
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Hafta içi Türkiye saatiyle 18:27 ve 18:42; ikinci çalışma geciken kapanış verisini kontrol eder.
+    - cron: "27,42 15 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bist-technical-observations
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: automation/requirements.txt
+      - name: Bağımlılıkları yükle
+        run: pip install -r automation/requirements.txt
+      - name: Teknik gözlem taramasını çalıştır
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python automation/scanner.py
+      - name: Uygulama feed dosyasını güncelle
+        run: |
+          git config user.name "borsa-tarayici-bot"
+          git config user.email "borsa-tarayici-bot@users.noreply.github.com"
+          git add automation/output/feed.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Teknik gözlem feed dosyasını güncelle"
+          git push
