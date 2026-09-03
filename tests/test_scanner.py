@@ -1,6 +1,10 @@
 import importlib.util
+import os
+import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -51,6 +55,26 @@ class FollowUpTests(unittest.TestCase):
         self.assertIn("Takip özeti", message)
         self.assertIn("THYAO T+1 · Teyit aldı", message)
         self.assertIn("işlem emri değildir", message)
+
+    def test_invalid_chat_id_does_not_fail_scan(self):
+        fake_requests = SimpleNamespace(RequestException=Exception)
+        with patch.dict(os.environ, {"TELEGRAM_TOKEN": "123:test", "TELEGRAM_CHAT_ID": "123:yanlis"}), \
+             patch.dict(sys.modules, {"requests": fake_requests}):
+            self.assertFalse(scanner.send_telegram("Test"))
+
+    def test_telegram_http_error_is_nonfatal_and_description_is_safe(self):
+        class Response:
+            ok = False
+            status_code = 400
+
+            @staticmethod
+            def json():
+                return {"description": "Bad Request: chat not found"}
+
+        fake_requests = SimpleNamespace(RequestException=Exception, post=lambda *args, **kwargs: Response())
+        with patch.dict(os.environ, {"TELEGRAM_TOKEN": "123:test", "TELEGRAM_CHAT_ID": "123456789"}), \
+             patch.dict(sys.modules, {"requests": fake_requests}):
+            self.assertFalse(scanner.send_telegram("Test"))
 
 
 if __name__ == "__main__":
