@@ -24,3 +24,10 @@ Bu etiketler AL/SAT tavsiyesi değil, kurala dayalı teknik durum açıklamasıd
    `https://raw.githubusercontent.com/Semih-borsa/bist-teknik-radar/main/automation/output/feed.json`
 
 Diğer tarama repoları bu projeden bağımsızdır ve değiştirilmez.
+
+## Telegram sorun giderme
+
+- `TELEGRAM_TOKEN`, BotFather'ın verdiği iki nokta içeren değerin tamamıdır.
+- `TELEGRAM_CHAT_ID`, `getUpdates` yanıtındaki `chat.id` değeridir; yalnız rakamlardan oluşur (gruplarda başında `-` olabilir).
+- Botla özel sohbette önce **Start** seçilmeli ve en az bir mesaj gönderilmelidir.
+- Telegram geçici olarak mesajı reddetse bile tarama ve feed güncellemesi artık tamamlanır; hata açıklaması Actions kaydında görünür.
