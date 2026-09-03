@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import math
 import os
+import re
 import sys
 import time
 from datetime import date, datetime, timedelta, timezone
@@ -278,15 +279,33 @@ def telegram_message(feed: dict) -> str:
     return "\n".join(lines)[:4000]
 
 
-def send_telegram(message: str) -> None:
+def send_telegram(message: str) -> bool:
     import requests
-    token, chat_id = os.getenv("TELEGRAM_TOKEN"), os.getenv("TELEGRAM_CHAT_ID")
+    token = (os.getenv("TELEGRAM_TOKEN") or "").strip()
+    chat_id = (os.getenv("TELEGRAM_CHAT_ID") or "").strip()
     if not token or not chat_id:
         print("Telegram secrets tanımlı değil; bildirim atlandı.")
-        return
-    response = requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
-                             json={"chat_id": chat_id, "text": message}, timeout=20)
-    response.raise_for_status()
+        return False
+    if not re.fullmatch(r"-?\d+", chat_id):
+        print("Telegram bildirimi gönderilemedi: TELEGRAM_CHAT_ID yalnız rakamlardan oluşmalıdır.", file=sys.stderr)
+        return False
+    try:
+        response = requests.post(f"https://api.telegram.org/bot{token}/sendMessage",
+                                 json={"chat_id": chat_id, "text": message}, timeout=20)
+    except requests.RequestException as error:
+        print(f"Telegram bağlantısı başarısız ({type(error).__name__}); tarama sonucu yine kaydedildi.", file=sys.stderr)
+        return False
+    if not response.ok:
+        description = "Telegram isteği reddedildi."
+        try:
+            candidate = response.json().get("description")
+            if isinstance(candidate, str) and candidate:
+                description = candidate[:180]
+        except (ValueError, AttributeError):
+            pass
+        print(f"Telegram bildirimi gönderilemedi (HTTP {response.status_code}): {description}", file=sys.stderr)
+        return False
+    return True
 
 
 def main() -> int:
