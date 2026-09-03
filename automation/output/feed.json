@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "updatedAt": null,
+  "marketDate": null,
+  "status": "İlk tarama bekleniyor",
+  "scannedSymbols": 0,
+  "failedSymbols": 0,
+  "durationSeconds": 0,
+  "observations": [],
+  "trackingVersion": 1,
+  "followUps": [],
+  "tracking": []
+}
