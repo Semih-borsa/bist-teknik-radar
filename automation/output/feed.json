@@ -1,12 +1,12 @@
 {
   "version": 2,
   "trackingVersion": 1,
-  "updatedAt": "2026-09-03T18:00:41Z",
+  "updatedAt": "2026-09-03T18:07:15Z",
   "marketDate": "2026-09-03",
   "status": "Güncel",
   "scannedSymbols": 524,
   "failedSymbols": 21,
-  "durationSeconds": 32.3,
+  "durationSeconds": 41.8,
   "observations": [
     {
       "symbol": "BLCYT",
