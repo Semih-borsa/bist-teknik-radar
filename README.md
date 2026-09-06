@@ -4,6 +4,30 @@ Bu repo, BIST hisselerinde SMA 5/8/13 tabanlı teknik koşulları günlük kapan
 
 Sistem yalnızca teknik gözlem ve arşivleme içindir. Gerçek veya sanal işlem, portföy emri, hedef ya da stop üretmez.
 
+## Nadaraya radar
+
+Mevcut SMA/Momentum/Pullback/Zayıflama tarama mantığı değiştirilmeden, bağımsız `automation/nadaraya.py` modülü eklenmiştir. Ana tarama tamamlandıktan sonra bu modül `feed.json` içine ayrı bir `nadaraya` bölümü ekler.
+
+Nadaraya hesabı repaint kullanmayan endpoint yöntemiyle yapılır. Varsayılan parametreler:
+
+- Bandwidth: `8`
+- Multiplier: `3`
+- Gaussian lookback: `500` bar
+- MAE: `499` bar
+- RSI: `14`
+- ADX: `14`
+
+Üretilen durumlar:
+
+- `İzle`: fiyat kanalın alt %10 bölgesinde.
+- `AL Adayı`: gün içinde alt bandın altına sarkma var, dönüş teyidi henüz yok.
+- `AL`: alt bant altına sarkıp kanal içine dönüş + RSI yukarı dönüş + ADX filtresi.
+- `SAT Yaklaşıyor`: kanal konumu %90 ve üzeri + RSI teyidi.
+- `SAT`: kanal konumu %95 ve üzeri + RSI teyidi.
+- `Güçlü SAT`: üst bandı aşıp yeniden kanal içine dönüş + RSI aşağı dönüş.
+
+`nadaraya` bölümü; fiyat, alt/üst bant, NWE tahmini, kanal konumu, RSI, ADX, sinyal ve açıklama alanlarını içerir. Bu bölüm Android uygulamada ayrı bir **Nadaraya** sekmesi/filtre grubu olarak gösterilmek üzere tasarlanmıştır.
+
 ## Takip durumları
 
 - `Teyit aldı`: İlgili stratejinin teknik yapısı sonraki işlem gününde korunmuştur.
